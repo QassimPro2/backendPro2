@@ -40,7 +40,6 @@ const signup = (req, res) => {
               console.log(err);
               res.status(400).send(err);
             });
-          //   res.status(200).json(1);
         }
       })
       .catch((err) => {
@@ -50,8 +49,6 @@ const signup = (req, res) => {
 
 const login = (req, res) => {
   const { email, pass } = req.body;
-
-  //const hashedPassword = passwordHash.generate(pass);
 
   users
     .find({})
