@@ -28,6 +28,15 @@ app.use("/somePath", someRouter);
 const user = require("./routers/routes/user");
 app.use("/user", user);
 
+const hotels = require("./routers/routes/hotels");
+app.use("/hotels", hotels);
+
+const touristPlaces = require("./routers/routes/touristPlaces");
+app.use("/touristPlaces", touristPlaces);
+
+const journey = require("./routers/routes/journey");
+app.use("/journey", journey);
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server on ${PORT}`);

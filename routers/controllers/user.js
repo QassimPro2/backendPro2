@@ -2,31 +2,42 @@ const users = require("./../../db/models/user");
 const passwordHash = require("password-hash");
 
 const signup = (req, res) => {
-  const { email, pass } = req.body;
+  const { username, email, pass } = req.body;
+  console.log(username);
+  console.log(email);
+  console.log(pass);
 
-  if (email === undefined || pass === undefined || email === "" || pass == "") {
-    return res.status(400).send("Some data are missing");
+  if (
+    username === undefined ||
+    email === undefined ||
+    pass === undefined ||
+    email === "" ||
+    pass == "" ||
+    username === ""
+  ) {
+    return res.status(200).send("بعض البيانات مفقودة");
   }
 
   /* check from email format */
   const re =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  if (!re.test(String(email).toLowerCase()))
-    res.status(400).json("invalid email address");
+  if (!re.test(String(email).toLowerCase().trim()))
+    res.status(200).send("عنوان إيميل غير صحيح");
   else
     users
       .find({})
       .then((result) => {
         const found = result.find((item) => {
-          return item.email == email;
+          return item.email.trim() == email || item.username == username.trim();
         });
 
-        if (found) res.status(400).json(-1);
+        if (found) res.status(200).send("الإيميل أو اسم المستخدم موجود مسبقًا");
         else {
           const hashedPassword = passwordHash.generate(pass);
 
-          console.log(hashedPassword);
+          // console.log(hashedPassword);
           const newUser = new users({
+            username,
             email,
             hashedPassword,
           });
@@ -34,7 +45,7 @@ const signup = (req, res) => {
           newUser
             .save()
             .then((result) => {
-              res.status(200).json(result);
+              res.status(200).send("تم التسجيل بنجاح");
             })
             .catch((err) => {
               console.log(err);
@@ -48,20 +59,21 @@ const signup = (req, res) => {
 };
 
 const login = (req, res) => {
-  const { email, pass } = req.body;
-
+  const { usernameOrEmail, pass } = req.body;
   users
     .find({})
     .then((result) => {
       const found = result.find((item) => {
+        console.log(item.username);
         return (
-          item.email == email && passwordHash.verify(pass, item.hashedPassword)
+          (item.email == usernameOrEmail || item.username == usernameOrEmail) &&
+          passwordHash.verify(pass, item.hashedPassword)
         );
       });
 
-      if (found) res.status(200).json(found);
+      if (found) res.status(200).json(found.username);
       else {
-        res.status(400).json(-1);
+        res.status(200).send("خطأ بمعلومات الدخول");
       }
     })
     .catch((err) => {
